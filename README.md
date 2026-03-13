@@ -1,6 +1,6 @@
 # Secure User Management API
 
-Portfolio project showcasing a secure, production-minded user management API built with Spring Boot 3, Spring Security, and JPA.
+Secure, production-ready user management API built with Spring Boot 3, Spring Security, and JPA.
 
 ## Highlights
 - RESTful CRUD for users
@@ -80,7 +80,12 @@ If you run in a restricted environment that blocks server sockets, you may need 
 ./mvnw test
 ```
 
-## Notes for Portfolio Reviewers
+## Project Overview
 
-This project focuses on clean layering, secure password handling, and reliable API behavior.  
-See the tests for examples of expected API behavior and validation.
+This project implements a secure and well-structured backend application with clean architecture and proper separation of concerns.
+Key features include:
+Layered architecture (Controller, Service, Repository)
+Secure password hashing using BCrypt
+Input validation and consistent API responses
+RESTful endpoints for user management
+For details on expected API behavior and validation rules, see the included test cases.
