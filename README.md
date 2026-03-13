@@ -4,7 +4,7 @@
 ![Java](https://img.shields.io/badge/java-17-blue)
 ![Spring Boot](https://img.shields.io/badge/spring%20boot-3.5.x-brightgreen)
 
-Portfolio project showcasing a secure, production-minded user management API built with Spring Boot 3, Spring Security, and JPA.
+Secure, production-ready user management API built with Spring Boot 3, Spring Security, and JPA.
 
 ## Highlights
 - RESTful CRUD for users
