@@ -2,6 +2,7 @@ package com.IslanaCarvalho.UserHub.controller;
 
 import com.IslanaCarvalho.UserHub.business.UserService;
 import com.IslanaCarvalho.UserHub.infrastructure.dto.request.CreateUserDTO;
+import com.IslanaCarvalho.UserHub.infrastructure.dto.request.AddBalanceDTO;
 import com.IslanaCarvalho.UserHub.infrastructure.dto.request.UpdateUserDTO;
 import com.IslanaCarvalho.UserHub.infrastructure.dto.response.UserResponseDTO;
 import com.IslanaCarvalho.UserHub.infrastructure.exception.EmailAlreadyRegisteredException;
@@ -18,11 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
+
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -196,6 +200,41 @@ class UserControllerTest {
                 .build();
 
         mockMvc.perform(put("/users/{id}", 3L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addBalance_returnsUpdatedBalance() throws Exception {
+        AddBalanceDTO request = AddBalanceDTO.builder()
+                .amount(new BigDecimal("50.00"))
+                .build();
+
+        UserResponseDTO response = UserResponseDTO.builder()
+                .id(3L)
+                .email("carlos@example.com")
+                .name("Carlos")
+                .balance(new BigDecimal("50.00"))
+                .build();
+
+        when(userService.addBalance(ArgumentMatchers.eq(3L), ArgumentMatchers.any(AddBalanceDTO.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/users/{id}/balance", 3L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.balance").value(50.00));
+    }
+
+    @Test
+    void addBalance_nonPositiveAmount_returnsBadRequest() throws Exception {
+        AddBalanceDTO request = AddBalanceDTO.builder()
+                .amount(BigDecimal.ZERO)
+                .build();
+
+        mockMvc.perform(patch("/users/{id}/balance", 3L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());

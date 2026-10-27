@@ -10,6 +10,8 @@ import com.IslanaCarvalho.UserHub.infrastructure.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.IslanaCarvalho.UserHub.infrastructure.mapper.UserMapper;
+import com.IslanaCarvalho.UserHub.infrastructure.dto.request.AddBalanceDTO;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -69,5 +71,14 @@ public class UserService {
         User updatedUser = repository.save(user);
 
         return UserMapper.toResponseDTO(updatedUser);
+    }
+
+    @Transactional
+    public UserResponseDTO addBalance(Long id, AddBalanceDTO request) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setBalance(user.getBalance().add(request.getAmount()));
+        return UserMapper.toResponseDTO(repository.save(user));
     }
 }

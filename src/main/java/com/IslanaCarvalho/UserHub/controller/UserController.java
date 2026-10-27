@@ -5,6 +5,7 @@ import com.IslanaCarvalho.UserHub.infrastructure.dto.request.UpdateUserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.IslanaCarvalho.UserHub.infrastructure.dto.request.CreateUserDTO;
+import com.IslanaCarvalho.UserHub.infrastructure.dto.request.AddBalanceDTO;
 import com.IslanaCarvalho.UserHub.infrastructure.dto.response.UserResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,14 @@ public class UserController {
 
         UserResponseDTO user = userService.updateUserById (id, request);
         return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/{id}/balance")
+    public ResponseEntity<UserResponseDTO> addBalance(
+            @PathVariable Long id,
+            @RequestBody @Valid AddBalanceDTO request
+    ) {
+        return ResponseEntity.ok(userService.addBalance(id, request));
     }
 
     @DeleteMapping("/email/{email}")
