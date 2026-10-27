@@ -1,107 +1,164 @@
-# Secure User Management API
+# UserHub — Secure User Management API
 
-![Build](https://img.shields.io/badge/build-maven-blue)
-![Java](https://img.shields.io/badge/java-17-blue)
-![Spring Boot](https://img.shields.io/badge/spring%20boot-3.5.x-brightgreen)
+![Java 17](https://img.shields.io/badge/java-17-blue)
+![Spring Boot 3.5.10](https://img.shields.io/badge/spring%20boot-3.5.10-brightgreen)
+![Build](https://img.shields.io/badge/build-Maven-blue)
 
-Secure, production-ready user management API built with Spring Boot 3, Spring Security, and JPA.
+REST API for user management built with Java 17 and Spring Boot. The project
+provides user CRUD operations, input validation, BCrypt password hashing and
+balance management backed by an in-memory H2 database.
 
-## Highlights
-- RESTful CRUD for users
-- Password hashing with BCrypt
-- Validation with clear error responses
-- Centralized error handling
-- Tests for endpoints and validation
+## Features
 
-## Tech Stack
+- Create, search, update and delete users
+- BCrypt password hashing (passwords are never returned by the API)
+- User balance with two-decimal precision
+- Bean Validation for request payloads
+- Centralized handling for duplicate emails and missing users
+- Swagger/OpenAPI documentation
+- Controller tests with MockMvc
+
+## Tech stack
+
 - Java 17
-- Spring Boot 3.5.x
-- Spring Web, Spring Data JPA, Spring Security
-- H2 (in-memory) for dev/test
-- Maven
+- Spring Boot 3.5.10
+- Spring Web
+- Spring Data JPA
+- Spring Security
+- Spring Validation
+- H2 Database (in-memory)
+- Springdoc OpenAPI
+- Maven Wrapper
 
-## API Endpoints
+## Requirements
+
+- JDK 17 or newer
+- Bash, or use `mvnw.cmd` on Windows
+
+## Running locally
+
+Clone the repository and start the application:
+
+```bash
+git clone https://github.com/islanabeatriz/secure-user-management-api.git
+cd secure-user-management-api
+./mvnw spring-boot:run
+```
+
+The API starts at `http://localhost:8080`. The H2 database is in memory, so
+data is reset whenever the application stops.
+
+To run the test suite:
+
+```bash
+./mvnw test
+```
+
+## API documentation
+
+With the application running, access:
+
+- Swagger UI: <http://localhost:8080/swagger-ui/index.html>
+- OpenAPI JSON: <http://localhost:8080/v3/api-docs>
+
+## Endpoints
 
 Base URL: `http://localhost:8080`
 
-```
-POST   /users
-GET    /users/
-GET    /users/email/{email}
-PUT    /users/{id}
-DELETE /users/email/{email}
-```
+| Method | Endpoint | Description | Success |
+| --- | --- | --- | --- |
+| `GET` | `/users/` | Health check | `200 OK` |
+| `POST` | `/users` | Create a user | `200 OK` |
+| `GET` | `/users/email/{email}` | Find a user by email | `200 OK` |
+| `PUT` | `/users/{id}` | Update user fields | `200 OK` |
+| `PATCH` | `/users/{id}/balance` | Add to the user balance | `200 OK` |
+| `DELETE` | `/users/email/{email}` | Delete a user by email | `204 No Content` |
 
-### Example Requests
+### Create a user
 
-Create user:
 ```bash
 curl -X POST http://localhost:8080/users \
   -H "Content-Type: application/json" \
   -d '{"email":"ana@example.com","password":"Secret123","name":"Ana"}'
 ```
 
-Get user by email:
+Example response:
+
+```json
+{
+  "id": 1,
+  "email": "ana@example.com",
+  "name": "Ana",
+  "balance": 0
+}
+```
+
+### Find a user by email
+
 ```bash
 curl http://localhost:8080/users/email/ana@example.com
 ```
 
-Update user:
+### Update a user
+
+All fields are optional. When `password` is provided, it is hashed with BCrypt
+before being stored.
+
 ```bash
 curl -X PUT http://localhost:8080/users/1 \
   -H "Content-Type: application/json" \
-  -d '{"name":"Ana Silva"}'
+  -d '{"name":"Ana Silva","password":"NewSecret123"}'
 ```
 
-Delete user:
+### Add balance
+
+The amount must be at least `0.01` and contain no more than two decimal places.
+
+```bash
+curl -X PATCH http://localhost:8080/users/1/balance \
+  -H "Content-Type: application/json" \
+  -d '{"amount":50.00}'
+```
+
+### Delete a user
+
 ```bash
 curl -X DELETE http://localhost:8080/users/email/ana@example.com
 ```
 
-## Error Handling
+## Errors and validation
 
-The API returns consistent error responses:
+Common responses include:
+
 ```json
-{ "message": "User not found" }
+{
+  "message": "User not found"
+}
 ```
 
-Typical error codes:
-- `400` for validation errors
-- `404` when a user is not found
-- `409` when email is already registered
+- `400 Bad Request`: invalid or missing request data
+- `404 Not Found`: user does not exist
+- `409 Conflict`: email is already registered
 
-## Running Locally
+## Security status
 
-```bash
-./mvnw spring-boot:run
-```
+Passwords are hashed with `BCryptPasswordEncoder` and are not included in
+`UserResponseDTO`. At the moment, the `/users/**` routes are publicly
+accessible; authentication and authorization are not implemented yet.
 
-If you run in a restricted environment that blocks server sockets, you may need elevated permissions.
+## Architecture
 
-## Tests
-
-```bash
-./mvnw test
-```
-
-## Project Overview
-
-This project focuses on clean layering, secure password handling, and reliable API behavior.  
-See the tests for examples of expected API behavior and validation.
-
-## Architecture (High Level)
-
-```
-Controller -> Service -> Repository -> Database
+```text
+Controller -> Service -> Repository -> H2 Database
      |           |
-     |           +-> DTO/Mapper
+     |           +-> DTOs and Mapper
      |
-     +-> Validation + Exception Handling
+     +-> Validation and Exception Handling
 ```
 
-## Roadmap
+The main package is organized into controllers, business services, entities,
+repositories, DTOs, mappers and infrastructure configuration.
 
-1. Add OpenAPI examples for each endpoint in Swagger UI.
-2. Add Dockerfile + docker-compose for running locally.
-3. Add a CI workflow for tests and formatting.
-4. Add authentication (JWT) and role-based access.
+## License
+
+No license has been defined for this repository yet.
