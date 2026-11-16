@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: userhub-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: userhub
+      MYSQL_USER: userhub
+      MYSQL_PASSWORD: userhub
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - userhub_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuserhub", "-puserhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  userhub_mysql_data:

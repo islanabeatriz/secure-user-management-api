@@ -34,6 +34,7 @@ public class UserController {
         UserResponseDTO user = userService.searchUserByEmail(email);
         return ResponseEntity.ok(user);
     }
+
     @GetMapping("/")
     public String home() {
         return "API UserHub funcionando 🚀";
